@@ -35,7 +35,7 @@ class Action
         if ($qry && $qry->num_rows > 0) {
             foreach ($qry->fetch_array() as $key => $value) {
                 if ($key != 'password' && !is_numeric($key))
-                    $_SESSION['login_' . $key] = $value;
+                    $SESSION['login' . $key] = $value;
             }
             $_SESSION['login_type'] = $type;
             // if ($type == 2) {
@@ -263,42 +263,41 @@ class Action
     }
 
     function save_comment()
-    {
-        extract($_POST);
-        $data = "";
-        foreach ($_POST as $k => $v) {
-            if (!in_array($k, array('id')) && !is_numeric($k)) {
-                if ($k == 'comment') {
-                    $v = htmlentities(str_replace("'", "&#x2019;", $v));
-                }
-                if (empty($data)) {
-                    $data .= " $k='$v' ";
-                } else {
-                    $data .= ", $k='$v' ";
-                }
+{
+    extract($_POST);
+    $data = "";
+    foreach ($_POST as $k => $v) {
+        if (!in_array($k, array('id')) && !is_numeric($k)) {
+            if ($k == 'solution') {
+                $v = htmlentities(str_replace("'", "&#x2019;", $v));
+            }
+            if (empty($data)) {
+                $data .= " $k='$v' ";
+            } else {
+                $data .= ", $k='$v' ";
             }
         }
-        $data .= ", user_type={$_SESSION['login_type']} ";
-        $data .= ", user_id={$_SESSION['login_id']} ";
+    }
+    $data .= ", user_type={$_SESSION['login_type']} ";
+    $data .= ", user_id={$_SESSION['login_id']} ";
 
-        // Debugging statements
-        echo "Data to be saved: $data\n";
+    // Debugging statements
+    error_log("Data to be saved: $data");
 
-        if (empty($id)) {
-            $save = $this->db->query("INSERT INTO comments SET $data");
-        } else {
-            $save = $this->db->query("UPDATE comments SET $data WHERE id = $id");
-        }
-
-        if ($save) {
-            echo "Save successful\n";
-            return 1;
-        } else {
-            echo "Save failed: " . $this->db->error . "\n";
-            return 0;
-        }
+    if (empty($id)) {
+        $save = $this->db->query("INSERT INTO comments SET $data");
+    } else {
+        $save = $this->db->query("UPDATE comments SET $data WHERE id = $id");
     }
 
+    if ($save) {
+        error_log("Save successful");
+        return 1;
+    } else {
+        error_log("Save failed: " . $this->db->error);
+        return 0;
+    }
+}
 
     function delete_comment()
     {
