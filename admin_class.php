@@ -245,13 +245,17 @@ class Action
     function update_ticket()
     {
         extract($_POST);
-        $data = " status=$status ";
-        if ($_SESSION['login_type'] == 2)
-            $data .= ", staff_id={$_SESSION['login_id']} ";
+        $data = "status=$status";
+        if ($_SESSION['login_type'] == 3) { // Assuming type 3 is for staff
+            $data .= ", staff_id={$_SESSION['login_id']}";
+        }
         $save = $this->db->query("UPDATE tickets SET $data WHERE id = $id");
         if ($save)
             return 1;
+        else
+            return $this->db->error;
     }
+
 
     function delete_ticket()
     {
