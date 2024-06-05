@@ -15,6 +15,7 @@ if ($id > 0) {
             $$k = $v;
         }
     } else {
+        // Handle query failure, log error, or display a user-friendly message
         echo "Error: Unable to fetch data.";
     }
 } else {
@@ -69,67 +70,65 @@ if ($id > 0) {
                 </div>
             </div>
         </div>
-        <?php if ($_SESSION['login_type'] != 4) : ?>
-            <div class="col-md-4">
-                <div class="card card-outline card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Solution/s</h3>
+        <div class="col-md-4">
+            <div class="card card-outline card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Solution/s</h3>
+                </div>
+                <div class="card-body p-0 py-2">
+                    <div class="container-fluid">
+                        <?php
+                        $comments = $conn->query("SELECT * FROM comments WHERE ticket_id = '$id' ORDER BY unix_timestamp(time_finished) ASC");
+                        while ($row = $comments->fetch_assoc()) :
+                            if ($row['user_type'] == 1)
+                                $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM users WHERE id = {$row['user_id']}")->fetch_array()['name'];
+                            if ($row['user_type'] == 2)
+                                $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM staff WHERE id = {$row['user_id']}")->fetch_array()['name'];
+                            if ($row['user_type'] == 3)
+                                $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM staff WHERE id = {$row['user_id']}")->fetch_array()['name'];
+                            if ($row['user_type'] == 4)
+                                $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM customers WHERE id = {$row['user_id']}")->fetch_array()['name'];
+                        ?>
+                            <div class="card card-outline card-info">
+                                <div class="card-header">
+                                    <h5 class="card-title"><?php echo ucwords($uname) ?></h5>
+                                    <div class="card-tools">
+                                        <span class="text-muted"><?php echo date("M d, Y", strtotime($row['time_finished'])) ?></span>
+                                        <?php if ($row['user_type'] == $_SESSION['login_type'] && $row['user_id'] == $_SESSION['login_id']) : ?>
+                                            <span class="dropleft">
+                                                <a class="fa fa-ellipsis-v text-muted" href="javascript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                                <div class="dropdown-menu" style="">
+                                                    <a class="dropdown-item edit_comment" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Edit</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item delete_comment" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
+                                                </div>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div>
+                                        <?php echo html_entity_decode($row['solution']) ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
                     </div>
-                    <div class="card-body p-0 py-2">
-                        <div class="container-fluid">
-                            <?php
-                            $comments = $conn->query("SELECT * FROM comments WHERE ticket_id = '$id' ORDER BY unix_timestamp(time_finished) ASC");
-                            while ($row = $comments->fetch_assoc()) :
-                                if ($row['user_type'] == 1)
-                                    $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM users WHERE id = {$row['user_id']}")->fetch_array()['name'];
-                                if ($row['user_type'] == 2)
-                                    $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM staff WHERE id = {$row['user_id']}")->fetch_array()['name'];
-                                if ($row['user_type'] == 3)
-                                    $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM staff WHERE id = {$row['user_id']}")->fetch_array()['name'];
-                                if ($row['user_type'] == 4)
-                                    $uname = $conn->query("SELECT concat(lastname, ', ', firstname, ' ', middlename) as name FROM customers WHERE id = {$row['user_id']}")->fetch_array()['name'];
-                            ?>
-                                <div class="card card-outline card-info">
-                                    <div class="card-header">
-                                        <h5 class="card-title"><?php echo ucwords($uname) ?></h5>
-                                        <div class="card-tools">
-                                            <span class="text-muted"><?php echo date("M d, Y", strtotime($row['time_finished'])) ?></span>
-                                            <?php if ($row['user_type'] == $_SESSION['login_type'] && $row['user_id'] == $_SESSION['login_id']) : ?>
-                                                <span class="dropleft">
-                                                    <a class="fa fa-ellipsis-v text-muted" href="javascript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                    <div class="dropdown-menu" style="">
-                                                        <a class="dropdown-item edit_comment" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Edit</a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item delete_comment" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
-                                                    </div>
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div>
-                                            <?php echo html_entity_decode($row['solution']) ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endwhile; ?>
-                        </div>
-                        <hr class="border-primary">
-                        <div class="px-2">
-                            <form action="" id="manage-comment">
-                                <div class="form-group">
-                                    <input type="hidden" name="id" value="">
-                                    <input type="hidden" name="ticket_id" value="<?php echo $id ?>">
-                                    <label for="" class="control-label">New Solution</label>
-                                    <textarea name="solution" id="" cols="30" rows="" class="form-control summernote2"></textarea>
-                                </div>
-                                <button class="btn btn-primary btn-sm float-right">Save</button>
-                            </form>
-                        </div>
+                    <hr class="border-primary">
+                    <div <?php echo $_SESSION['login_type'] != 3 ? 'hidden' : ''; ?> class="px-2">
+                        <form action="" id="manage-comment">
+                            <div class="form-group">
+                                <input type="hidden" name="id" value="">
+                                <input type="hidden" name="ticket_id" value="<?php echo $id ?>">
+                                <label for="" class="control-label">New Solution</label>
+                                <textarea name="solution" id="" cols="30" rows="" class="form-control summernote2"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-sm float-right">Save</button>
+                        </form>
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 </div>
 <script>
@@ -169,10 +168,10 @@ if ($id > 0) {
                         location.reload()
                     }, 1500)
                 }
-                end_load(); 
+                end_load(); // Hentikan loading ketika data berhasil disimpan
             },
             error: function() {
-                end_load(); 
+                end_load(); // Hentikan loading jika terjadi kesalahan
                 alert_toast('An error occurred.', "danger");
             }
         })
