@@ -145,7 +145,7 @@ if ($id > 0) {
         })
     })
     $('.edit_comment').click(function() {
-        uni_modal("Edit Comment", "manage_comment.php?id=" + $(this).attr('data-id'))
+        uni_modal("Edit Solution", "manage_comment.php?id=" + $(this).attr('data-id'))
     })
     $('.update_status').click(function() {
         uni_modal("Update Ticket's Status", "manage_ticket.php?id=" + $(this).attr('data-id'))
@@ -163,7 +163,7 @@ if ($id > 0) {
             type: 'POST',
             success: function(resp) {
                 if (resp == 1) {
-                    alert_toast('Comment successfully saved.', "success");
+                    alert_toast('Solution successfully saved.', "success");
                     setTimeout(function() {
                         location.reload()
                     }, 1500)
