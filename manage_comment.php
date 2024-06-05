@@ -12,7 +12,7 @@ foreach($qry as $k => $v){
 		<input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">
 		<div class="form-group">
 			<label for="" class="control-label">Solution</label>
-			<textarea name="comment" id="" cols="30" rows="4" class="form-control summernote2"><?php echo isset($comment)? $comment: '' ?></textarea>
+			<textarea name="solution" id="" cols="30" rows="4" class="form-control summernote2"><?php echo isset($solution)? $solution: '' ?></textarea>
 		</div>
 	</form>
 </div>
