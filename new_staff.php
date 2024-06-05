@@ -77,10 +77,10 @@ if (isset($_GET['id'])) {
                             <small id="pass_match" data-status=''></small>
                         </div>
                     </div>
-                    <div class="col-lg-12 text-right justify-content-center d-flex">
-					<button class="btn btn-primary mr-2">Save</button>
-					<button class="btn btn-secondary" type="reset">Clear</button>
-				</div>
+
+					
+					
+		</div>
                 <hr>
             </form>
         </div>
